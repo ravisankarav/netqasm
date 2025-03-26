@@ -32,7 +32,6 @@ if is_using_hardware:
         )
         from qnodeos.socket import (
             ABCAppSocket,
-            AppSocketRole,
             ClientAppSocket,
             ServerAppSocket,
         )
