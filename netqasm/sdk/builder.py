@@ -1128,6 +1128,12 @@ class Builder:
         self._build_cmds_two_qubit(GenericInstr.MOV, source, target)
         self._build_cmds_qfree(source)
 
+    def _build_cmds_swap_qubits(self, qubit1: int, qubit2: int) -> None:
+        # Swap the state of two qubits. Both qubits should be active.
+        assert qubit1 in [q.qubit_id for q in self._mem_mgr.get_active_qubits()]
+        assert qubit2 in [q.qubit_id for q in self._mem_mgr.get_active_qubits()]
+        self._build_cmds_two_qubit(GenericInstr.SWP, qubit1, qubit2)
+
     def _build_cmds_measure(
         self,
         qubit_id: int,
@@ -1896,14 +1902,17 @@ class Builder:
             and self._hardware_config.comm_qubit_count == 1
         )
 
+        has_mem_qubits: bool = (
+            self._hardware_config is not None
+            and self._hardware_config.mem_qubit_count > 0
+        )
+
         # If there is a post routine, handle pairs one by one.
         # If there is only one comm qubit, handle pairs one by one.
         if params.post_routine is not None or single_comm_qubit:
             wait_all = False
         else:
             wait_all = True
-
-        self._connection._logger.info(f"wait_all = {wait_all}")
 
         if reset_results_array:
             self._build_cmds_undefine_array(ent_results_array)
@@ -1925,7 +1934,7 @@ class Builder:
                 qubit_ids_array, ent_results_array, wait_all, params
             )
 
-        if params.post_routine is None and single_comm_qubit:
+        if params.post_routine is None and single_comm_qubit and has_mem_qubits:
             self._build_cmds_wait_move_epr_to_mem(
                 params=params, ent_results_array=ent_results_array, role=role
             )
@@ -2071,7 +2080,7 @@ class Builder:
                     # Otherwise: free the qubits.
                     if not params.sequential:
                         for q in qubits:
-                            q.free()
+                            q.free(deactivate=False)
 
                 loop.set_cleanup_code(cleanup)
 
@@ -2111,7 +2120,7 @@ class Builder:
                     # Otherwise: free the qubits.
                     if not params.sequential:
                         for q in qubits:
-                            q.free()
+                            q.free(deactivate=False)
 
                 loop.set_cleanup_code(cleanup)
 

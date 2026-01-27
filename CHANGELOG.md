@@ -1,6 +1,38 @@
 CHANGELOG
 =========
 
+2025-11-20 (2.2.0)
+------------------
+- Remove MOV instruction due to incompatibility with NetQASM's memory management paradigm.
+  Users that still require moving a qubit to another one are encouraged to use the SWP
+  instruction instead.
+
+2025-11-13 (2.1.1)
+------------------
+- Fix qubit not getting freed in memory manager after move.
+
+2025-11-12 (2.1.0)
+------------------
+- Add support for MOV and SWP commands for Vanilla nad NV flavours.
+
+2025-09-24 (2.0.2)
+------------------
+- Fixed bug to correctly deactivate qubits when invoking `free` on them whenever it is
+  appropriate.
+
+2025-03-26 (2.0.0)
+-------------------
+- Added new "mul", "div" and "rem" instructions in the core NetQASM specification.
+- Added new "TrappedIonFlavour" to support new trapped-ion flavours of QPUs.
+  This new flavour supports RotZ instructions, instructions to rotate all qubits
+  (x, y and z axes), init all qubits, measure all qubits and bichromatic instruction.
+- Instructions for gates "X", "Y", "Z" and "H" are no longer supported on nv-center
+  flavour QPUs.
+- Branching instructions now support destination using labels
+- Updated the connection with QNodeOS to support QNodeOS 2.0. Warning: This breaks
+  compatibility with older versions of QNodeOS.
+- Added support for performing rotations right before measuring a qubit. 
+
 2024-09-13 (1.0.0)
 -------------------
 - Fix bell state corrections when compiling for hardware
